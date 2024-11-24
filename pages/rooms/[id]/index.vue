@@ -1,11 +1,8 @@
 <script setup>
-const route = useRoute();
-// const router = useRouter();
-
-// import { ref, reactive } from 'vue';
-// import { RouterLink } from 'vue-router';
-// import DatePickerModal from '@/components/rooms/DatePickerModal.vue';
+import DatePickerModal from '~/components/rooms/DatePickerModal.vue';
 import { Icon } from '@iconify/vue';
+
+const route = useRoute();
 
 const datePickerModal = ref(null);
 
@@ -310,7 +307,8 @@ const handleDateChange = (bookingInfo) => {
               </div>
 
               <h5 class="mb-0 text-primary-100 fw-bold">NT$ 10,000</h5>
-              <NuxtLink :to="route.params.id" class="btn btn-primary-100 py-4 text-neutral-0 fw-bold rounded-3"> 立即預訂 </NuxtLink>
+              <!-- <NuxtLink :to="{ name: 'booking', params: { roomId: $route.params.roomId } }" class="btn btn-primary-100 py-4 text-neutral-0 fw-bold rounded-3"> 立即預訂 </NuxtLink> -->
+              <NuxtLink :to="`${route.path}/booking`" class="btn btn-primary-100 py-4 text-neutral-0 fw-bold rounded-3"> 立即預訂 </NuxtLink>
             </div>
           </div>
         </div>
@@ -329,7 +327,10 @@ const handleDateChange = (bookingInfo) => {
               >{{ daysFormatOnMobile(bookingDate.date?.start) }} - {{ daysFormatOnMobile(bookingDate.date?.end) }}</span
             >
           </div>
-          <NuxtLink :to="route.params.id" class="btn btn-primary-100 px-12 py-4 text-neutral-0 fw-bold rounded-3"> 立即預訂 </NuxtLink>
+          <!-- <NuxtLink :to="{ name: 'booking', params: { roomId: $route.params.roomId } }" class="btn btn-primary-100 px-12 py-4 text-neutral-0 fw-bold rounded-3">
+            立即預訂
+          </NuxtLink> -->
+          <NuxtLink :to="`${route.path}/booking`" class="btn btn-primary-100 px-12 py-4 text-neutral-0 fw-bold rounded-3"> 立即預訂 </NuxtLink>
         </template>
       </div>
     </section>
