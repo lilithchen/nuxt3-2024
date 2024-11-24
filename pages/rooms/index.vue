@@ -2,6 +2,7 @@
 // import { computed, ref } from "vue";
 // import { RouterLink } from "vue-router";
 import { Icon } from '@iconify/vue';
+import { useScreens } from 'vue-screen-utils';
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Autoplay, Navigation, Pagination } from 'swiper/modules';
@@ -12,9 +13,17 @@ import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 
 const modules = ref([Autoplay, Navigation, Pagination]);
 
-const importImage = (url) => {
+/* const importImage = (url) => {
   const image = new URL(url, import.meta.url);
   return image.href;
+}; */
+const { mapCurrent } = useScreens({
+  md: '768px',
+});
+const isMobile = mapCurrent({ md: false }, true);
+const getRoomImage = (roomId, num, isMobile = false) => {
+  const suffix = isMobile ? '-sm' : '';
+  return new URL(`../../assets/images/room-${roomId}${suffix}-${num}.png`, import.meta.url).href;
 };
 
 const roomImages = computed(() => {
@@ -24,8 +33,10 @@ const roomImages = computed(() => {
   const result = rooms.reduce((acc, roomId) => {
     acc[`room${roomId.toUpperCase()}`] = nums.reduce((obj, num) => {
       obj[num] = {
-        desktop: importImage(`../../assets/images/room-${roomId}-${num}.png`),
-        mobile: importImage(`../../assets/images/room-${roomId}-sm-${num}.png`),
+        /* desktop: importImage(`../../assets/images/room-${roomId}-${num}.png`),
+        mobile: importImage(`../../assets/images/room-${roomId}-sm-${num}.png`), */
+        desktop: getRoomImage(roomId, num),
+        mobile: getRoomImage(roomId, num, true),
       };
       return obj;
     }, {});
