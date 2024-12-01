@@ -5,6 +5,7 @@ import { Icon } from '@iconify/vue';
 
 // import "bootstrap/js/dist/collapse";
 // import "bootstrap/js/dist/dropdown";
+const { $bsCollapse, $bsDropdown } = useNuxtApp();
 
 const route = useRoute();
 const transparentBgRoute = ['index', 'rooms'];
