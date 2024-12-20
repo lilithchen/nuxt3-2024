@@ -2,6 +2,9 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
+  devServer: {
+    port: 3001
+  },
   app: {
     head: {
       meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1.0' }],
@@ -15,15 +18,7 @@ export default defineNuxtConfig({
     },
   },
   css: ['~/assets/styles/all.scss', 'swiper/css', 'swiper/css/navigation', 'swiper/css/pagination'],
-  // vite: {
-  //   css: {
-  //     preprocessorOptions: {
-  //       scss: {
-  //         additionalData: '@use "sass:math"; @import "@/assets/styles/_variables.scss";',
-  //       },
-  //     },
-  //   },
-  // },
+  modules: ["@pinia/nuxt"],
   components: {
     dirs: [
       {

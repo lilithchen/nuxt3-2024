@@ -1,5 +1,11 @@
 <script setup>
 const route = useRoute();
+import { useAuthStore } from '@/stores/auth';
+const auth = useAuthStore();
+const { checkAuth, getUserData } = auth;
+checkAuth();
+const userData = ref(null);
+userData.value = await getUserData();
 </script>
 
 <template>
@@ -12,7 +18,7 @@ const route = useRoute();
       <div class="container">
         <div class="hero-content d-flex flex-column flex-md-row justify-content-center justify-content-md-start align-items-md-center gap-4 gap-md-6 mx-5 my-10 mx-md-0 my-md-0">
           <img class="avatar" src="@/assets/images/avatar-6.png" alt="avatar" />
-          <h1 class="text-neutral-0 fw-bold">Hello，Jessica</h1>
+          <h1 class="text-neutral-0 fw-bold">Hello，{{ userData.result.name }}</h1>
         </div>
       </div>
     </section>

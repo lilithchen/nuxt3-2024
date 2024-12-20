@@ -1,8 +1,31 @@
 <script setup>
+import { storeToRefs } from 'pinia';
+
+import { useAuthStore } from '@/stores/auth';
+const auth = useAuthStore();
+
+const { isLogin } = storeToRefs(auth);
+await auth.checkAuth();
+
+const userData = ref(null);
+userData.value = await auth.getUserData();
+
+import { useBookingStore } from '@/stores/booking';
+const booking = useBookingStore();
+const { preOrderData } = storeToRefs(booking);
+
 import DatePickerModal from '~/components/rooms/DatePickerModal.vue';
 import { Icon } from '@iconify/vue';
 
+const { data: roomsData, error: roomsError } = await useFetch('https://freyja-l47x.onrender.com/api/v1/rooms/', {
+  transform: (res) => res?.result || [],
+});
 const route = useRoute();
+const router = useRouter();
+// console.log(route.params.id);
+
+const nowRoom = ref(null);
+nowRoom.value = roomsData.value.filter((room) => room._id === route.params.id)[0];
 
 const datePickerModal = ref(null);
 
@@ -42,6 +65,38 @@ const handleDateChange = (bookingInfo) => {
   bookingPeople.value = bookingInfo?.people || 1;
   daysCount.value = bookingInfo.daysCount;
 };
+
+const sendPreOrder = () => {
+  if (!isLogin.value) {
+    alert('請先登入會員');
+    router.push('/account/login');
+    return;
+  } else if (!bookingDate.date.start || !bookingDate.date.end || bookingDate.date.start === bookingDate.date.end || bookingDate.date.start > bookingDate.date.end) {
+    alert('請選擇入住與退房日期');
+    return;
+  } else {
+    preOrderData.value = {
+      roomId: nowRoom.value._id,
+      checkInDate: bookingDate.date.start,
+      checkOutDate: bookingDate.date.end,
+      peopleNum: bookingPeople.value,
+      userInfo: {
+        address: {
+          zipcode: userData.value.result.address.zipcode,
+          detail: userData.value.result.address.detail,
+        },
+        name: userData.value.result.name,
+        phone: userData.value.result.phone,
+        email: userData.value.result.email,
+      },
+    };
+
+    booking.setRoomPrice(nowRoom.value.price);
+    booking.setPreOrderDays(daysCount.value);
+
+    router.push(`${route.path}/booking`);
+  }
+};
 </script>
 
 <template>
@@ -50,16 +105,14 @@ const handleDateChange = (bookingInfo) => {
       <div class="d-none d-md-block position-relative">
         <div class="d-flex gap-2 rounded-3xl overflow-hidden">
           <div style="width: 52.5vw">
-            <img class="w-100" src="@/assets/images/room-a-1.png" alt="room-a-1" />
+            <img class="w-100" :src="nowRoom.imageUrl" :alt="nowRoom.name" />
           </div>
           <div class="d-flex flex-wrap gap-md-2" style="width: 42.5vw">
             <div class="d-flex gap-md-2">
-              <img class="w-50" src="@/assets/images/room-a-2.png" alt="room-a-2" />
-              <img class="w-50" src="@/assets/images/room-a-3.png" alt="room-a-3" />
+              <img v-for="(img, index) in nowRoom.imageUrlList.slice(0, 2)" :key="index" class="w-50" :src="img" :alt="index" />
             </div>
             <div class="d-flex gap-md-2">
-              <img class="w-50" src="@/assets/images/room-a-4.png" alt="room-a-4" />
-              <img class="w-50" src="@/assets/images/room-a-5.png" alt="room-a-5" />
+              <img v-for="(img, index) in nowRoom.imageUrlList.slice(2, 4)" :key="index" class="w-50" :src="img" :alt="index" />
             </div>
           </div>
         </div>
@@ -68,7 +121,7 @@ const handleDateChange = (bookingInfo) => {
         </button>
       </div>
       <div class="d-md-none position-relative">
-        <img class="img-fluid" src="@/assets/images/room-a-1.png" alt="room-a-1" />
+        <img class="img-fluid" :src="nowRoom.imageUrl" :alt="nowRoom.name" />
         <button class="position-absolute btn btn-primary-10 px-8 py-4 text-primary-100 border-primary-100 fw-bold rounded-3" style="bottom: 23px; right: 12px" type="button">
           看更多
         </button>
@@ -80,8 +133,8 @@ const handleDateChange = (bookingInfo) => {
         <div class="row">
           <div class="col-12 col-md-7 d-flex flex-column gap-6 gap-md-20">
             <div>
-              <h1 class="mb-4 text-neutral-100 fw-bold">尊爵雙人房</h1>
-              <p class="mb-0 text-neutral-80 fs-8 fs-md-7 fw-medium">享受高級的住宿體驗，尊爵雙人房提供給您舒適寬敞的空間和精緻的裝潢。</p>
+              <h1 class="mb-4 text-neutral-100 fw-bold">{{ nowRoom.name }}</h1>
+              <p class="mb-0 text-neutral-80 fs-8 fs-md-7 fw-medium">{{ nowRoom.description }}</p>
             </div>
 
             <section>
@@ -89,15 +142,15 @@ const handleDateChange = (bookingInfo) => {
               <ul class="d-flex gap-4 list-unstyled">
                 <li class="card-info px-4 py-5 bg-neutral-0 border border-primary-40 rounded-3">
                   <Icon class="mb-2 fs-5 text-primary-100" icon="fluent:slide-size-24-filled" />
-                  <p class="mb-0 fw-bold text-neutral-80 text-nowrap">24 坪</p>
+                  <p class="mb-0 fw-bold text-neutral-80 text-nowrap">{{ nowRoom.areaInfo }}</p>
                 </li>
                 <li class="card-info px-4 py-5 bg-neutral-0 border border-primary-40 rounded-3">
                   <Icon class="mb-2 fs-5 text-primary-100" icon="material-symbols:king-bed" />
-                  <p class="mb-0 fw-bold text-neutral-80 text-nowrap">1 張大床</p>
+                  <p class="mb-0 fw-bold text-neutral-80 text-nowrap">{{ nowRoom.bedInfo }}</p>
                 </li>
                 <li class="card-info px-4 py-5 bg-neutral-0 border border-primary-40 rounded-3">
                   <Icon class="mb-2 fs-5 text-primary-100" icon="ic:baseline-person" />
-                  <p class="mb-0 fw-bold text-neutral-80 text-nowrap">2-4 人</p>
+                  <p class="mb-0 fw-bold text-neutral-80 text-nowrap">2-{{ nowRoom.maxPeople }} 人</p>
                 </li>
               </ul>
             </section>
@@ -105,25 +158,9 @@ const handleDateChange = (bookingInfo) => {
             <section>
               <h3 class="title-deco mb-4 mb-md-6 text-neutral-100 fs-7 fs-md-5 fw-bold">房間格局</h3>
               <ul class="d-flex flex-wrap gap-6 gap-md-10 p-6 bg-neutral-0 fs-8 fs-md-7 rounded-3 list-unstyled">
-                <li class="d-flex gap-2">
+                <li v-for="item in nowRoom.layoutInfo.filter((item) => item.isProvide)" :key="item" class="d-flex gap-2">
                   <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">市景</p>
-                </li>
-                <li class="d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">獨立衛浴</p>
-                </li>
-                <li class="d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">客廳</p>
-                </li>
-                <li class="d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">書房</p>
-                </li>
-                <li class="d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">樓層電梯</p>
+                  <p class="mb-0 text-neutral-80 fw-bold">{{ item.title }}</p>
                 </li>
               </ul>
             </section>
@@ -131,45 +168,9 @@ const handleDateChange = (bookingInfo) => {
             <section>
               <h3 class="title-deco mb-4 mb-md-6 text-neutral-100 fs-7 fs-md-5 fw-bold">房內設備</h3>
               <ul class="d-flex flex-wrap row-gap-2 column-gap-10 p-6 mb-0 bg-neutral-0 fs-8 fs-md-7 rounded-3 list-unstyled">
-                <li class="flex-item d-flex gap-2">
+                <li v-for="item in nowRoom.facilityInfo.filter((item) => item.isProvide)" :key="item" class="flex-item flex-grow-0 d-flex gap-2">
                   <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">平面電視</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">吹風機</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">冰箱</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">熱水壺</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">檯燈</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">衣櫃</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">除濕機</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">浴缸</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">書桌</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">音響</p>
+                  <p class="mb-0 text-neutral-80 fw-bold">{{ item.title }}</p>
                 </li>
               </ul>
             </section>
@@ -177,45 +178,9 @@ const handleDateChange = (bookingInfo) => {
             <section>
               <h3 class="title-deco mb-4 mb-md-6 text-neutral-100 fs-7 fs-md-5 fw-bold">備品提供</h3>
               <ul class="d-flex flex-wrap row-gap-2 column-gap-10 p-6 mb-0 bg-neutral-0 fs-8 fs-md-7 rounded-3 list-unstyled">
-                <li class="flex-item d-flex gap-2">
+                <li v-for="item in nowRoom.amenityInfo.filter((item) => item.isProvide)" :key="item" class="flex-item flex-grow-0 d-flex gap-2">
                   <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">衛生紙</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">拖鞋</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">沐浴用品</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">清潔用品</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">刮鬍刀</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">吊衣架</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">浴巾</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">刷牙用品</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">罐裝水</p>
-                </li>
-                <li class="flex-item d-flex gap-2">
-                  <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
-                  <p class="mb-0 text-neutral-80 fw-bold">梳子</p>
+                  <p class="mb-0 text-neutral-80 fw-bold">{{ item.title }}</p>
                 </li>
               </ul>
             </section>
@@ -241,8 +206,8 @@ const handleDateChange = (bookingInfo) => {
               <h5 class="pb-4 mb-0 text-neutral-100 fw-bold border-bottom border-neutral-40">預訂房型</h5>
 
               <div class="text-neutral-80">
-                <h2 class="fw-bold">尊爵雙人房</h2>
-                <p class="mb-0 fw-medium">享受高級的住宿體驗，尊爵雙人房提供給您舒適寬敞的空間和精緻的裝潢。</p>
+                <h2 class="fw-bold">{{ nowRoom.name }}</h2>
+                <p class="mb-0 fw-medium">{{ nowRoom.description }}</p>
               </div>
 
               <div>
@@ -252,7 +217,7 @@ const handleDateChange = (bookingInfo) => {
                       id="checkinInput"
                       readonly
                       type="date"
-                      :value="bookingDate.date.start"
+                      v-model="bookingDate.date.start"
                       class="form-control p-4 pt-9 text-neutral-100 fw-medium border-neutral-100 rounded-3"
                       style="min-height: 74px"
                       placeholder="yyyy-mm-dd"
@@ -266,7 +231,7 @@ const handleDateChange = (bookingInfo) => {
                       id="checkoutInput"
                       readonly
                       type="date"
-                      :value="bookingDate.date.end"
+                      v-model="bookingDate.date.end"
                       class="form-control p-4 pt-9 text-neutral-100 fw-medium border-neutral-100 rounded-3"
                       style="min-height: 74px"
                       placeholder="yyyy-mm-dd"
@@ -306,9 +271,8 @@ const handleDateChange = (bookingInfo) => {
                 </div>
               </div>
 
-              <h5 class="mb-0 text-primary-100 fw-bold">NT$ 10,000</h5>
-              <!-- <NuxtLink :to="{ name: 'booking', params: { roomId: $route.params.roomId } }" class="btn btn-primary-100 py-4 text-neutral-0 fw-bold rounded-3"> 立即預訂 </NuxtLink> -->
-              <NuxtLink :to="`${route.path}/booking`" class="btn btn-primary-100 py-4 text-neutral-0 fw-bold rounded-3"> 立即預訂 </NuxtLink>
+              <h5 class="mb-0 text-primary-100 fw-bold">NT$ {{ nowRoom.price.toLocaleString() }}</h5>
+              <NuxtLink class="btn btn-primary-100 py-4 text-neutral-0 fw-bold rounded-3" @click="sendPreOrder()"> 立即預訂 </NuxtLink>
             </div>
           </div>
         </div>
@@ -316,21 +280,18 @@ const handleDateChange = (bookingInfo) => {
 
       <div class="d-flex d-md-none justify-content-between align-items-center position-fixed bottom-0 w-100 p-3 bg-neutral-0">
         <template v-if="bookingDate.date.end === null">
-          <small class="text-neutral-80 fw-medium">ＮＴ$ 10,000 / 晚</small>
+          <small class="text-neutral-80 fw-medium">ＮＴ$ {{ nowRoom.price.toLocaleString() }} / 晚</small>
           <button class="btn btn-primary-100 px-12 py-4 text-neutral-0 fw-bold rounded-3" type="button" @click="openModal">查看可訂日期</button>
         </template>
 
         <template v-else>
           <div class="d-flex flex-column gap-1">
-            <small class="text-neutral-80 fw-medium">ＮＴ$ 10,000 / {{ daysCount }} 晚 / {{ bookingPeople }} 人</small>
+            <small class="text-neutral-80 fw-medium">ＮＴ$ {{ nowRoom.price.toLocaleString() }} / {{ daysCount }} 晚 / {{ bookingPeople }} 人</small>
             <span class="text-neutral fs-9 fw-medium text-decoration-underline"
               >{{ daysFormatOnMobile(bookingDate.date?.start) }} - {{ daysFormatOnMobile(bookingDate.date?.end) }}</span
             >
           </div>
-          <!-- <NuxtLink :to="{ name: 'booking', params: { roomId: $route.params.roomId } }" class="btn btn-primary-100 px-12 py-4 text-neutral-0 fw-bold rounded-3">
-            立即預訂
-          </NuxtLink> -->
-          <NuxtLink :to="`${route.path}/booking`" class="btn btn-primary-100 px-12 py-4 text-neutral-0 fw-bold rounded-3"> 立即預訂 </NuxtLink>
+          <NuxtLink class="btn btn-primary-100 px-12 py-4 text-neutral-0 fw-bold rounded-3" @click="sendPreOrder()">立即預訂</NuxtLink>
         </template>
       </div>
     </section>

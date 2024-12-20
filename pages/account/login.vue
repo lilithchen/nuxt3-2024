@@ -1,5 +1,24 @@
 <script setup>
+import { useAuthStore } from '@/stores/auth';
+const auth = useAuthStore();
 const route = useRoute();
+
+import { useUserStore } from '@/stores/user';
+const userStore = useUserStore();
+// const county = computed(() => userStore.getUserCounty);
+// const city = computed(() => userStore.getUserCity);
+// const fullAddress = computed(() => userStore.getFullAddress);
+// console.log('getUserCounty: ', userStore.getUserCounty);
+
+const user = ref({
+  email: '',
+  password: '',
+});
+
+const sendLogin = () => {
+  const { email, password } = user.value;
+  auth.login({ email, password });
+};
 </script>
 
 <template>
@@ -12,11 +31,11 @@ const route = useRoute();
     <form class="mb-10">
       <div class="mb-4 fs-8 fs-md-7">
         <label class="mb-2 text-neutral-0 fw-bold" for="email"> 電子信箱 </label>
-        <input id="email" class="form-control p-4 text-neutral-100 fw-medium border-neutral-40" value="jessica@sample.com" placeholder="請輸入信箱" type="email" />
+        <input id="email" class="form-control p-4 text-neutral-100 fw-medium border-neutral-40" placeholder="請輸入信箱" type="email" v-model="user.email" />
       </div>
       <div class="mb-4 fs-8 fs-md-7">
         <label class="mb-2 text-neutral-0 fw-bold" for="password"> 密碼 </label>
-        <input id="password" class="form-control p-4 text-neutral-100 fw-medium border-neutral-40" value="jessica@sample.com" placeholder="請輸入密碼" type="password" />
+        <input id="password" class="form-control p-4 text-neutral-100 fw-medium border-neutral-40" placeholder="請輸入密碼" type="password" v-model="user.password" />
       </div>
       <div class="d-flex justify-content-between align-items-center mb-10 fs-8 fs-md-7">
         <div class="form-check d-flex align-items-end gap-2 text-neutral-0">
@@ -25,7 +44,7 @@ const route = useRoute();
         </div>
         <button class="text-primary-100 fw-bold text-decoration-underline bg-transparent border-0" type="button">忘記密碼？</button>
       </div>
-      <button class="btn btn-primary-100 w-100 py-4 text-neutral-0 fw-bold" type="button">會員登入</button>
+      <button class="btn btn-primary-100 w-100 py-4 text-neutral-0 fw-bold" type="button" @click="sendLogin">會員登入</button>
     </form>
 
     <p class="mb-0 fs-8 fs-md-7">
