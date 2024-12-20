@@ -1,22 +1,17 @@
 <script setup>
+import { Icon } from '@iconify/vue';
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
 
 const auth = useAuthStore();
 const { isLogin } = storeToRefs(auth);
 await auth.checkAuth();
 // console.log(isLogin.value);
 
-const userData = ref(null);
-if (isLogin.value) {
-  userData.value = await auth.getUserData();
-  // console.log(userData.value);
-}
-
-import { Icon } from '@iconify/vue';
+const userStore = useUserStore();
 
 const { $bsCollapse, $bsDropdown } = useNuxtApp();
-
 const route = useRoute();
 const transparentBgRoute = ['index', 'rooms'];
 
@@ -77,25 +72,30 @@ onUnmounted(() => {
                 客房旅宿
               </NuxtLink>
             </li>
-            <li v-if="isLogin && userData" class="d-none d-md-block nav-item">
+            <li class="d-none d-md-block nav-item">
               <div class="btn-group">
-                <button type="button" class="nav-link d-flex gap-2 p-4 text-neutral-0" data-bs-toggle="dropdown">
+                <button v-if="isLogin" type="button" class="nav-link d-flex gap-2 p-4 text-neutral-0" data-bs-toggle="dropdown">
                   <Icon class="fs-5" icon="mdi:account-circle-outline" />
-                  <span>{{ userData.result.name }}</span>
+                  <ClientOnly>
+                    <span>{{ userStore.userInfo.name }}</span>
+                  </ClientOnly>
                 </button>
-                <ul class="dropdown-menu py-3 overflow-hidden" style="right: 0; left: auto; border-radius: 20px">
-                  <li>
-                    <NuxtLink class="dropdown-item px-6 py-4" :to="`/user/${userData.result._id}`">我的帳戶</NuxtLink>
-                  </li>
-                  <li>
-                    <a class="dropdown-item px-6 py-4" @click="auth.logout()">登出</a>
-                  </li>
-                </ul>
+                <NuxtLink v-else to="/account/login" class="nav-link p-4 text-neutral-0"> 會員登入 </NuxtLink>
+                <ClientOnly>
+                  <ul v-if="isLogin" class="dropdown-menu py-3 overflow-hidden" style="right: 0; left: auto; border-radius: 20px">
+                    <li>
+                      <NuxtLink class="dropdown-item px-6 py-4" :to="`/user/${userStore.userInfo._id}`">我的帳戶</NuxtLink>
+                    </li>
+                    <li>
+                      <a class="dropdown-item px-6 py-4" @click="auth.logout()">登出</a>
+                    </li>
+                  </ul>
+                </ClientOnly>
               </div>
             </li>
-            <li v-else class="nav-item">
-              <NuxtLink to="/account/login" class="nav-link p-4 text-neutral-0"> 會員登入 </NuxtLink>
-            </li>
+            <!-- <li v-else class="nav-item">
+              <NuxtLink v-else to="/account/login" class="nav-link p-4 text-neutral-0"> 會員登入 </NuxtLink>
+            </li> -->
             <li class="nav-item">
               <NuxtLink
                 :to="{

@@ -10,7 +10,7 @@ export const useOrdersStore = defineStore('orders', () => {
 
   const fetchOrders = async () => {
     try {
-      const { data: orderData, error: orderError } = await useFetch('http://localhost:3005/api/v1/orders/', {
+      const { data: orderData, error: orderError } = await useFetch('https://freyja-l47x.onrender.com/api/v1/orders/', {
         headers: {
           Authorization: `Bearer ${cookie.value}`,
         },
@@ -35,7 +35,7 @@ export const useOrdersStore = defineStore('orders', () => {
 
   const cancelOrder = async (orderId) => {
     try {
-      const { data: cancelData, error: cancelError } = await useFetch(`http://localhost:3005/api/v1/orders/${orderId}`, {
+      const { data: cancelData, error: cancelError } = await useFetch(`https://freyja-l47x.onrender.com/api/v1/orders/${orderId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${cookie.value}`,

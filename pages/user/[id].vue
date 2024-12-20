@@ -1,11 +1,15 @@
 <script setup>
-const route = useRoute();
+import { storeToRefs } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
+
+const route = useRoute();
 const auth = useAuthStore();
-const { checkAuth, getUserData } = auth;
-checkAuth();
-const userData = ref(null);
-userData.value = await getUserData();
+const { isLogin } = storeToRefs(auth);
+await auth.checkAuth();
+
+const userStore = useUserStore();
+// console.log(userStore.userInfo);
 </script>
 
 <template>
@@ -18,7 +22,9 @@ userData.value = await getUserData();
       <div class="container">
         <div class="hero-content d-flex flex-column flex-md-row justify-content-center justify-content-md-start align-items-md-center gap-4 gap-md-6 mx-5 my-10 mx-md-0 my-md-0">
           <img class="avatar" src="@/assets/images/avatar-6.png" alt="avatar" />
-          <h1 class="text-neutral-0 fw-bold">Hello，{{ userData.result.name }}</h1>
+          <h1 class="text-neutral-0 fw-bold">
+            Hello，<span v-if="userStore.userInfo">{{ userStore.userInfo.name }}</span>
+          </h1>
         </div>
       </div>
     </section>

@@ -11,7 +11,21 @@ export const useUserStore = defineStore('user', () => {
     802: { city: '高雄市', county: '苓雅區' },
   };
 
-  const userInfo = ref(null);
+  const userInfo = ref({});
+  (async () => {
+    try {
+      const res = await $fetch('https://freyja-l47x.onrender.com/api/v1/user', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${cookie.value}` },
+      });
+      // console.log(res);
+      // console.log(res.result);
+      userInfo.value = res.result;
+      // console.log(userInfo.value);
+    } catch (error) {
+      console.log(error.response);
+    }
+  })();
 
   // 由郵遞區號取得縣市資訊
   const getAddressFromZipcode = (zipcode) => {
@@ -56,12 +70,13 @@ export const useUserStore = defineStore('user', () => {
     // console.log(userData);
 
     try {
-      const res = await $fetch('http://localhost:3005/api/v1/user', {
+      const res = await $fetch('https://freyja-l47x.onrender.com/api/v1/user', {
         method: 'PUT',
         headers: { Authorization: `Bearer ${cookie.value}` },
         body: userData,
       });
-      console.log(res);
+
+      userInfo.value = res.result;
 
       return { success: true, data: res };
     } catch (error) {

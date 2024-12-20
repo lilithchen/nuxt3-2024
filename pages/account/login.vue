@@ -1,7 +1,11 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth';
 const auth = useAuthStore();
-const route = useRoute();
+const { $bsModal } = useNuxtApp();
+let forgotModal = ref(null);
+onMounted(() => {
+  forgotModal.value = new $bsModal(document.getElementById('forgotPwModal'));
+});
 
 import { useUserStore } from '@/stores/user';
 const userStore = useUserStore();
@@ -13,11 +17,41 @@ const userStore = useUserStore();
 const user = ref({
   email: '',
   password: '',
+  code: '',
+  newPassword: '',
 });
 
 const sendLogin = () => {
   const { email, password } = user.value;
   auth.login({ email, password });
+  user.value.email = '';
+  user.value.password = '';
+};
+
+const showForgotPwCode = ref(false);
+const forgotPw = () => {
+  const { email } = user.value;
+  console.log(email);
+
+  if (!email) {
+    alert('請輸入信箱');
+    return;
+  } else {
+    auth.generateCode({ email });
+    showForgotPwCode.value = true;
+  }
+};
+const clearData = () => {
+  user.value.email = '';
+  user.value.password = '';
+  user.value.code = '';
+  user.value.newPassword = '';
+  showForgotPwCode.value = false;
+};
+const sendNewPassword = () => {
+  const { email, code, newPassword } = user.value;
+  auth.setNewPassword({ email, code, newPassword });
+  forgotModal.value.hide();
 };
 </script>
 
@@ -42,7 +76,9 @@ const sendLogin = () => {
           <input id="remember" class="form-check-input" type="checkbox" value="" />
           <label class="form-check-label fw-bold" for="remember"> 記住帳號 </label>
         </div>
-        <button class="text-primary-100 fw-bold text-decoration-underline bg-transparent border-0" type="button">忘記密碼？</button>
+        <button class="text-primary-100 fw-bold text-decoration-underline bg-transparent border-0" type="button" data-bs-toggle="modal" data-bs-target="#forgotPwModal">
+          忘記密碼？
+        </button>
       </div>
       <button class="btn btn-primary-100 w-100 py-4 text-neutral-0 fw-bold" type="button" @click="sendLogin">會員登入</button>
     </form>
@@ -53,6 +89,44 @@ const sendLogin = () => {
         <span>前往註冊</span>
       </NuxtLink>
     </p>
+
+    <!-- 忘記密碼popup -->
+    <div id="forgotPwModal" class="modal fade" title="忘記密碼" hide-footer>
+      <div class="modal-dialog modal-dialog-centered align-items-end align-items-md-center m-0 mx-md-auto h-100">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="clearData" />
+          </div>
+
+          <div class="modal-body mx-4 my-6 text-neutral-80 fs-8 fs-md-6 fw-bold">
+            <div>
+              <p class="fs-8 fs-md-7">請輸入您的電子信箱，我們將寄送驗證碼至您的信箱</p>
+              <label class="mb-2 fw-bold" for="email"> 電子信箱 </label>
+              <input class="form-control p-4 text-neutral-100 fw-medium border-neutral-40" placeholder="請輸入信箱" type="email" v-model="user.email" />
+            </div>
+            <div v-show="showForgotPwCode" :inert="!showForgotPwCode">
+              <label class="my-2 fw-bold" for="code"> 驗證碼 </label>
+              <input class="form-control p-4 text-neutral-100 fw-medium border-neutral-40" placeholder="請輸入驗證碼" type="text" v-model="user.code" />
+
+              <label class="my-2 fw-bold" for="newPassword"> 新密碼 </label>
+              <input class="form-control p-4 text-neutral-100 fw-medium border-neutral-40" placeholder="請輸入新密碼" type="password" v-model="user.newPassword" />
+
+              <p class="mt-2 fs-8 fs-md-7">
+                新密碼需包含至少 8 個字元，並包含至少一個數字、一個大寫字母、一個小寫字母<br />驗證碼將在 5 分鐘後失效<br />若您未收到驗證碼，請檢查垃圾郵件或重新寄送
+              </p>
+            </div>
+          </div>
+
+          <div class="modal-footer d-flex gap-4">
+            <button class="btn btn-outline-primary-100 flex-grow-1 m-0 py-4 fw-bold" style="--bs-btn-hover-color: #fff" type="button" data-bs-dismiss="modal" @click="clearData">
+              取消
+            </button>
+            <button v-show="!showForgotPwCode" class="btn btn-primary-100 flex-grow-1 m-0 py-4 text-white fw-bold" type="button" @click="forgotPw">寄送驗證碼</button>
+            <button v-show="showForgotPwCode" class="btn btn-primary-100 flex-grow-1 m-0 py-4 text-white fw-bold" type="button" @click="sendNewPassword">確認修改</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -92,5 +166,26 @@ input::placeholder {
 .form-check-input:checked {
   background-color: #bf9d7d;
   border-color: #bf9d7d;
+}
+
+.modal {
+  backdrop-filter: blur(10px);
+
+  @include media-breakpoint-down(md) {
+    backdrop-filter: none;
+  }
+}
+
+.modal-header {
+  @include media-breakpoint-down(md) {
+    border-bottom: 0 !important;
+  }
+}
+
+.modal-content {
+  @include media-breakpoint-down(md) {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+  }
 }
 </style>

@@ -16,17 +16,19 @@ const isEditPassword = ref(false);
 const isEditProfile = ref(false);
 
 const userStore = useUserStore();
+// console.log(userStore.userInfo);
+
 const { confirmPassword } = storeToRefs(userStore);
 
 // 用戶資料 取得預設 & 編輯內容
 const editUserData = ref({
-  userId: userData.value.result?._id,
-  name: userData.value.result?.name,
-  phone: userData.value.result?.phone,
-  birthday: userData.value.result?.birthday,
+  userId: userStore.userInfo._id,
+  name: userStore.userInfo.name,
+  phone: userStore.userInfo.phone,
+  birthday: userStore.userInfo.birthday,
   address: {
-    zipcode: userData.value.result?.address?.zipcode,
-    detail: userData.value.result?.address?.detail,
+    zipcode: userStore.userInfo.address.zipcode,
+    detail: userStore.userInfo.address.detail,
   },
   oldPassword: null,
   newPassword: null,

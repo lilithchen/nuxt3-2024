@@ -49,7 +49,7 @@ const sendSignup = () => {
       county: address.county,
     },
   };
-  console.log(signupData);
+  // console.log(signupData);
 
   signup.sendSignup(signupData);
 };

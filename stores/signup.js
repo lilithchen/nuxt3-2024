@@ -5,12 +5,12 @@ export const useSignupStore = defineStore('signup', () => {
 
   const sendSignup = async (signupData) => {
     try {
-      const res = await $fetch('http://localhost:3005/api/v1/user/signup', {
+      const res = await $fetch('https://freyja-l47x.onrender.com/api/v1/user/signup', {
         method: 'POST',
         body: signupData,
       });
 
-      console.log(res);
+      // console.log(res);
       // console.log(res.token);
       router.replace('/');
     } catch (error) {

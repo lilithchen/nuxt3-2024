@@ -13,7 +13,7 @@ const { data: orderData, error: orderError } = await useFetch(`https://freyja-l4
     Authorization: `Bearer ${cookie.value}`,
   },
 });
-console.log('orderData: ', orderData.value.result);
+// console.log('orderData: ', orderData.value.result);
 
 const bookingStore = useBookingStore();
 const { preOrderDays, totalPrice } = storeToRefs(bookingStore);

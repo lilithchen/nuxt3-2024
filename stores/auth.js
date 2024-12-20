@@ -7,14 +7,16 @@ export const useAuthStore = defineStore('auth', () => {
 
   const login = async ({ email, password }) => {
     try {
-      const res = await $fetch('http://localhost:3005/api/v1/user/login', {
+      const res = await $fetch('https://freyja-l47x.onrender.com/api/v1/user/login', {
         method: 'POST',
         body: { email, password },
       });
+      // console.log(res);
+      // console.log(res.token);
+
       cookie.value = res.token;
       isLogin.value = true;
       await router.push('/');
-      window.location.reload();
     } catch (error) {
       console.log(error.response);
     }
@@ -26,7 +28,7 @@ export const useAuthStore = defineStore('auth', () => {
         isLogin.value = false;
         return;
       }
-      const res = await $fetch('http://localhost:3005/api/v1/user/check', {
+      const res = await $fetch('https://freyja-l47x.onrender.com/api/v1/user/check', {
         headers: {
           Authorization: `Bearer ${cookie.value}`,
         },
@@ -44,7 +46,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const getUserData = async () => {
     try {
-      const res = await $fetch('http://localhost:3005/api/v1/user', {
+      const res = await $fetch('https://freyja-l47x.onrender.com/api/v1/user', {
         headers: {
           Authorization: `Bearer ${cookie.value}`,
         },
@@ -68,11 +70,39 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  const generateCode = async (data) => {
+    // console.log(data);
+
+    try {
+      const res = await $fetch('https://freyja-l47x.onrender.com/api/v1/verify/generateEmailCode', {
+        method: 'POST',
+        body: data,
+      });
+      console.log(res.status);
+    } catch (error) {
+      console.log(error.response);
+    }
+  };
+
+  const setNewPassword = async (data) => {
+    try {
+      const res = await $fetch('https://freyja-l47x.onrender.com/api/v1/user/forgot', {
+        method: 'POST',
+        body: data,
+      });
+      console.log(res.status);
+    } catch (error) {
+      console.log(error.response);
+    }
+  };
+
   return {
     isLogin,
     login,
     checkAuth,
     getUserData,
     logout,
+    generateCode,
+    setNewPassword,
   };
 });

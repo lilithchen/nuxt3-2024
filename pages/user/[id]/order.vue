@@ -7,9 +7,6 @@ const auth = useAuthStore();
 const { isLogin } = storeToRefs(auth);
 await auth.checkAuth();
 
-const userData = ref(null);
-userData.value = await auth.getUserData();
-
 import { useOrdersStore } from '@/stores/orders';
 const ordersStore = useOrdersStore();
 await ordersStore.fetchOrders();
