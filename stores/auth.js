@@ -1,24 +1,34 @@
 import { defineStore } from 'pinia';
+import { useUserStore } from './user';
 
 export const useAuthStore = defineStore('auth', () => {
   const router = useRouter();
   const cookie = useCookie('auth');
   const isLogin = ref(false);
+  const userStore = useUserStore();
 
-  const login = async ({ email, password }) => {
+  const login = async (loginData) => {
     try {
       const res = await $fetch('https://freyja-l47x.onrender.com/api/v1/user/login', {
         method: 'POST',
-        body: { email, password },
+        body: loginData,
       });
       // console.log(res);
+      // console.log(res.result.name);
       // console.log(res.token);
 
-      cookie.value = res.token;
-      isLogin.value = true;
-      await router.push('/');
+      if (res.status) {
+        cookie.value = res.token;
+        isLogin.value = true;
+        await userStore.getUserInfo();
+        console.log(res);
+        await router.push('/');
+        window.location.reload();
+      }
     } catch (error) {
       console.log(error.response);
+
+      // console.error('登入錯誤:', error.response?._data || error);
     }
   };
 

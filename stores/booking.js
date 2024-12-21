@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia';
-import { useAuthStore } from './auth';
 
 export const useBookingStore = defineStore('booking', () => {
-  const auth = useAuthStore();
   const cookie = useCookie('auth');
 
   const preOrderData = ref({

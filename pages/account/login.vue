@@ -1,6 +1,6 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth';
-const auth = useAuthStore();
+const authStore = useAuthStore();
 const { $bsModal } = useNuxtApp();
 let forgotModal = ref(null);
 onMounted(() => {
@@ -9,10 +9,6 @@ onMounted(() => {
 
 import { useUserStore } from '@/stores/user';
 const userStore = useUserStore();
-// const county = computed(() => userStore.getUserCounty);
-// const city = computed(() => userStore.getUserCity);
-// const fullAddress = computed(() => userStore.getFullAddress);
-// console.log('getUserCounty: ', userStore.getUserCounty);
 
 const user = ref({
   email: '',
@@ -21,11 +17,17 @@ const user = ref({
   newPassword: '',
 });
 
-const sendLogin = () => {
+const sendLogin = async () => {
   const { email, password } = user.value;
-  auth.login({ email, password });
-  user.value.email = '';
-  user.value.password = '';
+  if (!email || !password) {
+    alert('請填寫完整資料');
+    return;
+  }
+
+  await authStore.login({
+    email,
+    password,
+  });
 };
 
 const showForgotPwCode = ref(false);
@@ -37,7 +39,7 @@ const forgotPw = () => {
     alert('請輸入信箱');
     return;
   } else {
-    auth.generateCode({ email });
+    authStore.generateCode({ email });
     showForgotPwCode.value = true;
   }
 };
@@ -50,7 +52,7 @@ const clearData = () => {
 };
 const sendNewPassword = () => {
   const { email, code, newPassword } = user.value;
-  auth.setNewPassword({ email, code, newPassword });
+  authStore.setNewPassword({ email, code, newPassword });
   forgotModal.value.hide();
 };
 </script>

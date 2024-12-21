@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
+import { useAuthStore } from './auth';
 
 export const useUserStore = defineStore('user', () => {
+  const authStore = useAuthStore();
   const cookie = useCookie('auth');
 
   // 台灣郵遞區號對照表
@@ -12,20 +14,25 @@ export const useUserStore = defineStore('user', () => {
   };
 
   const userInfo = ref({});
-  (async () => {
+
+  const getUserInfo = async () => {
     try {
       const res = await $fetch('https://freyja-l47x.onrender.com/api/v1/user', {
         method: 'GET',
-        headers: { Authorization: `Bearer ${cookie.value}` },
+        headers: {
+          Authorization: `Bearer ${cookie.value}`,
+          'Content-Type': 'application/json',
+        },
       });
       // console.log(res);
       // console.log(res.result);
       userInfo.value = res.result;
       // console.log(userInfo.value);
+      return res.result;
     } catch (error) {
       console.log(error.response);
     }
-  })();
+  };
 
   // 由郵遞區號取得縣市資訊
   const getAddressFromZipcode = (zipcode) => {
@@ -95,6 +102,7 @@ export const useUserStore = defineStore('user', () => {
 
   return {
     userInfo,
+    getUserInfo,
     getUserCounty,
     getUserCity,
     getFullAddress,

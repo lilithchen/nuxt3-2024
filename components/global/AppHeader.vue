@@ -4,12 +4,19 @@ import { storeToRefs } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
 
-const auth = useAuthStore();
-const { isLogin } = storeToRefs(auth);
-await auth.checkAuth();
-// console.log(isLogin.value);
-
+const authStore = useAuthStore();
 const userStore = useUserStore();
+await authStore.checkAuth();
+
+// console.log(authStore.isLogin);
+
+const userName = ref('');
+if (authStore.isLogin) {
+  const result = await userStore.getUserInfo();
+  // console.log(result);
+  // console.log(userStore.userInfo.name);
+  userName.value = userStore.userInfo.name;
+}
 
 const { $bsCollapse, $bsDropdown } = useNuxtApp();
 const route = useRoute();
@@ -74,20 +81,20 @@ onUnmounted(() => {
             </li>
             <li class="d-none d-md-block nav-item">
               <div class="btn-group">
-                <button v-if="isLogin" type="button" class="nav-link d-flex gap-2 p-4 text-neutral-0" data-bs-toggle="dropdown">
+                <button v-if="authStore.isLogin" type="button" class="nav-link d-flex gap-2 p-4 text-neutral-0" data-bs-toggle="dropdown">
                   <Icon class="fs-5" icon="mdi:account-circle-outline" />
                   <ClientOnly>
-                    <span>{{ userStore.userInfo.name }}</span>
+                    <span>{{ userName }}</span>
                   </ClientOnly>
                 </button>
                 <NuxtLink v-else to="/account/login" class="nav-link p-4 text-neutral-0"> 會員登入 </NuxtLink>
                 <ClientOnly>
-                  <ul v-if="isLogin" class="dropdown-menu py-3 overflow-hidden" style="right: 0; left: auto; border-radius: 20px">
+                  <ul v-if="authStore.isLogin" class="dropdown-menu py-3 overflow-hidden" style="right: 0; left: auto; border-radius: 20px">
                     <li>
                       <NuxtLink class="dropdown-item px-6 py-4" :to="`/user/${userStore.userInfo._id}`">我的帳戶</NuxtLink>
                     </li>
                     <li>
-                      <a class="dropdown-item px-6 py-4" @click="auth.logout()">登出</a>
+                      <a class="dropdown-item px-6 py-4" @click="authStore.logout()">登出</a>
                     </li>
                   </ul>
                 </ClientOnly>
