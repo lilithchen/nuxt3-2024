@@ -1,7 +1,10 @@
 <script setup>
 import { storeToRefs } from 'pinia';
-
 import { useAuthStore } from '@/stores/auth';
+import { useBookingStore } from '@/stores/booking';
+import DatePickerModal from '~/components/rooms/DatePickerModal.vue';
+import { Icon } from '@iconify/vue';
+
 const auth = useAuthStore();
 
 const { isLogin } = storeToRefs(auth);
@@ -10,12 +13,8 @@ await auth.checkAuth();
 const userData = ref(null);
 userData.value = await auth.getUserData();
 
-import { useBookingStore } from '@/stores/booking';
 const booking = useBookingStore();
 const { preOrderData } = storeToRefs(booking);
-
-import DatePickerModal from '~/components/rooms/DatePickerModal.vue';
-import { Icon } from '@iconify/vue';
 
 const { data: roomsData, error: roomsError } = await useFetch('https://freyja-l47x.onrender.com/api/v1/rooms/', {
   transform: (res) => res?.result || [],
@@ -71,31 +70,31 @@ const sendPreOrder = () => {
     alert('請先登入會員');
     router.push('/account/login');
     return;
-  } else if (!bookingDate.date.start || !bookingDate.date.end || bookingDate.date.start === bookingDate.date.end || bookingDate.date.start > bookingDate.date.end) {
+  }
+  if (!bookingDate.date.start || !bookingDate.date.end) {
     alert('請選擇入住與退房日期');
     return;
-  } else {
-    preOrderData.value = {
-      roomId: nowRoom.value._id,
-      checkInDate: bookingDate.date.start,
-      checkOutDate: bookingDate.date.end,
-      peopleNum: bookingPeople.value,
-      userInfo: {
-        address: {
-          zipcode: userData.value.result.address.zipcode,
-          detail: userData.value.result.address.detail,
-        },
-        name: userData.value.result.name,
-        phone: userData.value.result.phone,
-        email: userData.value.result.email,
-      },
-    };
-
-    booking.setRoomPrice(nowRoom.value.price);
-    booking.setPreOrderDays(daysCount.value);
-
-    router.push(`${route.path}/booking`);
   }
+  preOrderData.value = {
+    roomId: nowRoom.value._id,
+    checkInDate: bookingDate.date.start,
+    checkOutDate: bookingDate.date.end,
+    peopleNum: bookingPeople.value,
+    userInfo: {
+      address: {
+        zipcode: userData.value.result.address.zipcode,
+        detail: userData.value.result.address.detail,
+      },
+      name: userData.value.result.name,
+      phone: userData.value.result.phone,
+      email: userData.value.result.email,
+    },
+  };
+
+  booking.setRoomPrice(nowRoom.value.price);
+  booking.setPreOrderDays(daysCount.value);
+
+  router.push(`${route.path}/booking`);
 };
 </script>
 
