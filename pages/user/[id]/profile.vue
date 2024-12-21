@@ -18,8 +18,6 @@ const isEditProfile = ref(false);
 const userStore = useUserStore();
 // console.log(userStore.userInfo);
 
-const { confirmPassword } = storeToRefs(userStore);
-
 // 用戶資料 取得預設 & 編輯內容
 const editUserData = ref({
   userId: userStore.userInfo._id,
@@ -76,14 +74,13 @@ const pwRes = ref(null);
 const profileRes = ref(null);
 const sendEditPassword = async () => {
   // console.log('after edit--- ', editUserData.value);
-  pwRes.value = '';
+  pwRes.value = null;
 
   if (editUserData.value.newPassword !== confirmPw.value) {
     pwRes.value = '新密碼與確認密碼不符';
     return;
-  } else {
-    confirmPassword.value = confirmPw.value;
   }
+
   const sendData = { ...editUserData.value };
 
   try {

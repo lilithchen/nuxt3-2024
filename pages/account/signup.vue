@@ -33,9 +33,21 @@ const sendData = ref({
 });
 
 const confirmPassword = ref('');
+const pwRes = ref(null);
 // console.log(`${getBirth.value.year}/${getBirth.value.month}/${getBirth.value.date}`);
 const sendSignup = () => {
+  pwRes.value = null;
   const { email, password, name, phone, birthday, address } = sendData.value;
+
+  if (confirmPassword.value !== password) {
+    pwRes.value = '新密碼與確認密碼不符';
+    return;
+  }
+  if (password.length < 8 || confirmPassword.value.length < 8) {
+    pwRes.value = '新密碼需包含至少 8 個字元';
+    return;
+  }
+
   const signupData = {
     email,
     password,
@@ -162,6 +174,7 @@ const isEmailAndPasswordValid = ref(false);
           <label class="form-check-label fw-bold" for="agreementCheck"> 我已閱讀並同意本網站個資使用規範 </label>
         </div>
         <button class="btn btn-primary-100 w-100 py-4 text-neutral-0 fw-bold" type="button" @click="sendSignup">完成註冊</button>
+        <span v-if="pwRes" class="text-primary-100">{{ pwRes }}</span>
       </form>
     </div>
 

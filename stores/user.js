@@ -67,7 +67,6 @@ export const useUserStore = defineStore('user', () => {
   });
 
   // 送出修改資料
-  const confirmPassword = ref('');
   const passwordError = ref({
     message: '',
     status: '',
@@ -108,7 +107,6 @@ export const useUserStore = defineStore('user', () => {
     getFullAddress,
     setUserInfo,
     getAddressFromZipcode,
-    confirmPassword,
     updateProfile,
     passwordError,
     setUserZipcode,

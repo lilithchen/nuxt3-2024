@@ -51,6 +51,12 @@ const clearData = () => {
   showForgotPwCode.value = false;
 };
 const sendNewPassword = () => {
+  // newPassword 需包含至少 8 個字元
+  if (user.value.newPassword.length < 8) {
+    alert('新密碼需包含至少 8 個字元');
+    return;
+  }
+
   const { email, code, newPassword } = user.value;
   authStore.setNewPassword({ email, code, newPassword });
   forgotModal.value.hide();
