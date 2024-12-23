@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 export const useBookingStore = defineStore('booking', () => {
   const cookie = useCookie('auth');
 
-  const preOrderData = ref({
+  /* const preOrderData = ref({
     roomId: '',
     checkInDate: '',
     checkOutDate: '',
@@ -17,7 +17,12 @@ export const useBookingStore = defineStore('booking', () => {
       phone: '',
       email: '',
     },
-  });
+  }); */
+  const preOrderData = ref({});
+  const getOrderData = (data) => {
+    preOrderData.value = data;
+    console.log(preOrderData.value);
+  };
 
   const preOrderDays = ref(0);
   const setPreOrderDays = (days) => {
@@ -60,6 +65,7 @@ export const useBookingStore = defineStore('booking', () => {
 
   return {
     preOrderData,
+    getOrderData,
     setPreOrderDays,
     preOrderDays,
     roomPrice,

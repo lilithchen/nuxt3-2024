@@ -19,18 +19,20 @@ if (isLogin.value) {
   // console.log(userData.value);
 }
 
-const sale = ref(1000);
-const { data: roomsData, error: roomsError } = await useFetch('https://freyja-l47x.onrender.com/api/v1/rooms/', {
-  transform: (res) => res?.result || [],
-});
-
 const bookingStore = useBookingStore();
 const { preOrderData, preOrderDays, roomPrice, totalPrice } = storeToRefs(bookingStore);
+
+const sale = ref(1000);
+const { data: roomsData, error: roomsError } = await useFetch(`https://freyja-l47x.onrender.com/api/v1/rooms/${preOrderData.value.roomId}`, {
+  transform: (res) => res?.result || [],
+});
+console.log(roomsData.value);
+
 const newTotalPrice = roomPrice.value * preOrderDays.value;
 totalPrice.value = newTotalPrice - sale.value;
 
 const bookRoom = ref(null);
-bookRoom.value = roomsData.value.filter((room) => room._id === preOrderData.value.roomId)[0];
+bookRoom.value = preOrderData.value;
 
 const goBack = () => {
   router.back();
@@ -99,7 +101,7 @@ const addUserData = () => {
                 <div class="d-flex justify-content-between align-items-center text-neutral-100">
                   <div>
                     <h3 class="title-deco mb-2 fs-7 fw-bold">選擇房型</h3>
-                    <p class="mb-0 fw-medium">{{ bookRoom.name }}</p>
+                    <p class="mb-0 fw-medium">{{ roomsData.name }}</p>
                   </div>
                   <button class="bg-transparent border-0 fw-bold text-decoration-underline" type="button">編輯</button>
                 </div>
@@ -181,15 +183,15 @@ const addUserData = () => {
                   <ul class="d-flex gap-4 list-unstyled">
                     <li class="card-info px-4 py-5 bg-neutral-0 border border-primary-40 rounded-3">
                       <Icon class="mb-2 fs-5 text-primary-100" icon="fluent:slide-size-24-filled" />
-                      <p class="mb-0 fw-bold text-neutral-80 text-nowrap">{{ bookRoom.areaInfo }}</p>
+                      <p class="mb-0 fw-bold text-neutral-80 text-nowrap">{{ roomsData.areaInfo }}</p>
                     </li>
                     <li class="card-info px-4 py-5 bg-neutral-0 border border-primary-40 rounded-3">
                       <Icon class="mb-2 fs-5 text-primary-100" icon="material-symbols:king-bed" />
-                      <p class="mb-0 fw-bold text-neutral-80 text-nowrap">{{ bookRoom.bedInfo }}</p>
+                      <p class="mb-0 fw-bold text-neutral-80 text-nowrap">{{ roomsData.bedInfo }}</p>
                     </li>
                     <li class="card-info px-4 py-5 bg-neutral-0 border border-primary-40 rounded-3">
                       <Icon class="mb-2 fs-5 text-primary-100" icon="ic:baseline-person" />
-                      <p class="mb-0 fw-bold text-neutral-80 text-nowrap">2-{{ bookRoom.maxPeople }} 人</p>
+                      <p class="mb-0 fw-bold text-neutral-80 text-nowrap">2-{{ roomsData.maxPeople }} 人</p>
                     </li>
                   </ul>
                 </section>
@@ -197,7 +199,7 @@ const addUserData = () => {
                 <section>
                   <h3 class="title-deco mb-4 mb-md-6 text-neutral-100 fs-7 fs-md-5 fw-bold">房間格局</h3>
                   <ul class="d-flex flex-wrap gap-6 gap-md-10 p-6 fs-8 fs-md-7 bg-neutral-0 rounded-3 list-unstyled">
-                    <li class="d-flex gap-2" v-for="item in bookRoom.layoutInfo" :key="item">
+                    <li class="d-flex gap-2" v-for="item in roomsData.layoutInfo" :key="item">
                       <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
                       <p class="mb-0 text-neutral-80 fw-bold">{{ item.title }}</p>
                     </li>
@@ -207,7 +209,7 @@ const addUserData = () => {
                 <section>
                   <h3 class="title-deco mb-4 mb-md-6 text-neutral-100 fs-7 fs-md-5 fw-bold">房內設備</h3>
                   <ul class="d-flex flex-wrap row-gap-2 column-gap-10 p-6 mb-0 fs-8 fs-md-7 bg-neutral-0 rounded-3 list-unstyled">
-                    <li class="flex-item d-flex gap-2" v-for="item in bookRoom.facilityInfo" :key="item">
+                    <li class="flex-item d-flex gap-2" v-for="item in roomsData.facilityInfo" :key="item">
                       <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
                       <p class="mb-0 text-neutral-80 fw-bold">{{ item.title }}</p>
                     </li>
@@ -217,7 +219,7 @@ const addUserData = () => {
                 <section>
                   <h3 class="title-deco mb-4 mb-md-6 text-neutral-100 fs-7 fs-md-5 fw-bold">備品提供</h3>
                   <ul class="d-flex flex-wrap row-gap-2 column-gap-10 p-6 mb-0 fs-8 fs-md-7 bg-neutral-0 rounded-3 list-unstyled">
-                    <li class="flex-item d-flex gap-2" v-for="item in bookRoom.amenityInfo" :key="item">
+                    <li class="flex-item d-flex gap-2" v-for="item in roomsData.amenityInfo" :key="item">
                       <Icon class="fs-5 text-primary-100" icon="material-symbols:check" />
                       <p class="mb-0 text-neutral-80 fw-bold">{{ item.title }}</p>
                     </li>
@@ -235,7 +237,7 @@ const addUserData = () => {
                 <h2 className="mb-6 text-neutral-100 fs-6 fs-md-4 fw-bold">價格詳情</h2>
                 <div class="d-flex justify-content-between align-items-center mb-3">
                   <div class="d-flex align-items-center text-neutral-100 fw-medium">
-                    <span>NT$ {{ bookRoom.price.toLocaleString() }}</span>
+                    <span>NT$ {{ roomPrice.toLocaleString() }}</span>
                     <Icon class="ms-2 me-1 text-neutral-80" icon="material-symbols:close" />
                     <span class="text-neutral-80">{{ preOrderDays }} 晚</span>
                   </div>

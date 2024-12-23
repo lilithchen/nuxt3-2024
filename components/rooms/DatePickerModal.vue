@@ -169,22 +169,20 @@ const clearDate = () => {
         </div>
         <div class="modal-body px-6 px-md-8 py-0">
           <div v-if="!isConfirmDateOnMobile" class="date-picker">
-            <ClientOnly>
-              <DatePicker
-                :key="tempDate.key"
-                v-model.range.string="tempDate.date"
-                color="primary"
-                :masks="masks"
-                :first-day-of-week="1"
-                :min-date="tempDate.minDate"
-                :max-date="tempDate.maxDate"
-                :rows="rows"
-                :columns="columns"
-                :expanded="expanded"
-                :title-position="titlePosition"
-                class="border-0"
-              />
-            </ClientOnly>
+            <DatePicker
+              :key="tempDate.key"
+              v-model.range.string="tempDate.date"
+              color="primary"
+              :masks="masks"
+              :first-day-of-week="1"
+              :min-date="tempDate.minDate"
+              :max-date="tempDate.maxDate"
+              :rows="rows"
+              :columns="columns"
+              :expanded="expanded"
+              :title-position="titlePosition"
+              class="border-0"
+            />
           </div>
 
           <div v-else>
