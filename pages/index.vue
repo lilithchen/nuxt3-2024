@@ -1,5 +1,4 @@
 <script setup>
-// import { ref } from "vue";
 import { Icon } from '@iconify/vue';
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
@@ -22,7 +21,9 @@ const slideNext = () => {
 };
 const activeIndex = ref(0);
 const onSlideChange = (swiper) => {
-  activeIndex.value = swiper.activeIndex;
+  swiper.on('slideChange', () => {
+    activeIndex.value = swiper.realIndex;
+  });
 };
 
 const { data: newsData, error: newsError } = await useFetch('https://freyja-l47x.onrender.com/api/v1/home/news', {
@@ -104,51 +105,6 @@ const { data: culinaryData, error: culinaryError } = await useFetch('https://fre
                 </div>
               </div>
             </div>
-
-            <!-- <div class="card bg-transparent border-0">
-              <div class="d-flex flex-column flex-md-row align-items-center gap-6">
-                <picture>
-                  <source srcset="@/assets/images/home-news-1.png" media="(min-width: 576px)" />
-                  <img src="@/assets/images/home-news-sm-1.png" class="w-100 rounded-3" alt="可看見海景及泳池的套房" />
-                </picture>
-                <div class="card-body p-0">
-                  <h3 class="card-title mb-2 mb-md-6 fw-bold">秋季旅遊，豪華享受方案</h3>
-                  <p class="card-text text-neutral-80 fs-8 fs-md-7 fw-medium">
-                    秋天就是要來場豪華的旅遊！我們為您準備了一系列的秋季特別方案，包括舒適的住宿、美食饗宴，以及精彩的活動。不論您是想來一趟浪漫之旅，還是想和家人共度美好時光，都能在這裡找到最適合的方案。
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="card bg-transparent border-0">
-              <div class="d-flex flex-column flex-md-row align-items-center gap-6">
-                <picture>
-                  <source srcset="@/assets/images/home-news-2.png" media="(min-width: 576px)" />
-                  <img src="@/assets/images/home-news-sm-2.png" class="w-100 rounded-3" alt="在雙人床上的兩顆灰色枕頭" />
-                </picture>
-                <div class="card-body p-0">
-                  <h3 class="card-title mb-2 mb-md-6 fw-bold">輕鬆住房專案</h3>
-                  <p class="card-text text-neutral-80 fs-8 fs-md-7 fw-medium">
-                    我們知道，有時候您只是需要一個舒適的地方放鬆心情。因此，我們推出了「輕鬆住房專案」，讓您無壓力地享受住宿。不管是短期的休息，還是長期的住宿，我們都會以最貼心的服務，讓您感到賓至如歸。
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="card bg-transparent border-0">
-              <div class="d-flex flex-column flex-md-row align-items-center gap-6">
-                <picture>
-                  <source srcset="@/assets/images/home-news-3.png" media="(min-width: 576px)" />
-                  <img src="@/assets/images/home-news-sm-3.png" class="w-100 rounded-3" alt="坐在沙發上的聖誕麋鹿玩偶" />
-                </picture>
-                <div class="card-body p-0">
-                  <h3 class="card-title mb-2 mb-md-6 fw-bold">耶誕快樂，住房送禮</h3>
-                  <p class="card-text text-neutral-80 fs-8 fs-md-7 fw-medium">
-                    聖誕節來臨，我們為您準備了特別的禮物！在聖誕期間訂房，不僅有特別優惠，還會送上我們精心準備的聖誕禮物。讓我們一起慶祝這個溫馨的節日吧！
-                  </p>
-                </div>
-              </div>
-            </div> -->
           </div>
         </div>
       </div>

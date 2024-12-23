@@ -7,8 +7,18 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1.0' }],
       title: '享樂酒店｜Enjoyment Luxury Hotel',
+      charset: 'utf-8',
+      meta: [
+        { name: 'viewport', 
+          content: 'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1,',
+        },
+        {
+          name: 'description',
+          content: '高雄豪華住宿之選, 我們致力於為您提供無與倫比的奢華體驗與優質服務',
+        },
+      ],
+      
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
