@@ -15,7 +15,6 @@ const roomSwiper = ref(null);
 const slidePrev = () => {
   roomSwiper.value.$el.swiper.slidePrev();
 };
-
 const slideNext = () => {
   roomSwiper.value.$el.swiper.slideNext();
 };
